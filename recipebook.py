@@ -41,6 +41,9 @@ class RecipeBook:
         self.recipes = []
 
     def add_recipe(self, recipe):
+        if any(r.name == recipe.name for r in self.recipes):
+            print(f"Recipe '{recipe.name}' already exists.")
+            return
         self.recipes.append(recipe)
 
     def remove_recipe(self, recipe_name):

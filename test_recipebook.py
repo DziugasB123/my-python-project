@@ -30,7 +30,88 @@ class TestRecipeBook(unittest.TestCase):
         # Check if the recipe was added to the recipe book
         self.assertEqual(len(self.recipe_book.recipes), 1)
         self.assertEqual(self.recipe_book.recipes[0].name, "Spaghetti")
+
+    def test_edit_recipe(self):
+        # Test editing an existing recipe
+        recipe = RegularRecipe("Spaghetti", ["pasta", "tomatoes"], ["boil", "drain", "serve"])
+        self.recipe_book.add_recipe(recipe)
+        
+        # Save the recipe to file
+        self.recipe_book.save_to_file(self.test_file)
+
+        # Edit the recipe
+        edited_recipe = RegularRecipe("Spaghetti Bolognese", ["pasta", "tomatoes", "meat"], ["boil", "fry", "serve"])
+        self.recipe_book.edit_recipe("Spaghetti", edited_recipe)
+        
+        # Verify the recipe was edited
+        self.assertEqual(self.recipe_book.recipes[0].name, "Spaghetti Bolognese")
+        self.assertEqual(self.recipe_book.recipes[0].ingredients, ["pasta", "tomatoes", "meat"])
+
+    def test_remove_recipe(self):
+        # Test removing a recipe
+        recipe = RegularRecipe("Spaghetti", ["pasta", "tomatoes"], ["boil", "drain", "serve"])
+        self.recipe_book.add_recipe(recipe)
+        
+        # Save the recipe to file
+        self.recipe_book.save_to_file(self.test_file)
+        
+        # Remove the recipe
+        self.recipe_book.remove_recipe("Spaghetti")
+        
+        # Verify the recipe was removed
+        self.assertEqual(len(self.recipe_book.recipes), 0)
+
+    def test_display_empty_recipe_list(self):
+        # Test displaying when there are no recipes
+        result = self.recipe_book.display_recipes()
+        self.assertEqual(result, "No recipes found.")
+
+    def test_empty_recipe_list(self):
+        # Test if the recipe book handles no recipes correctly
+        self.assertEqual(self.recipe_book.display_recipes(), "No recipes found.")
+
+    def test_edit_non_existing_recipe(self):
+        # Test if attempting to edit a non-existing recipe does not cause issues
+        self.recipe_book.edit_recipe("NonExistentRecipe", RegularRecipe("Spaghetti", ["pasta", "tomatoes"], ["boil", "drain", "serve"]))
+        self.assertEqual(len(self.recipe_book.recipes), 0)
+
+    def test_remove_non_existing_recipe(self):
+        # Test if attempting to remove a non-existing recipe does not cause issues
+        self.recipe_book.remove_recipe("NonExistentRecipe")
+        self.assertEqual(len(self.recipe_book.recipes), 0)
+
+    def test_add_duplicate_recipe(self):
+        # Test adding a duplicate recipe
+        recipe1 = RegularRecipe("Spaghetti", ["pasta", "tomatoes"], ["boil", "drain", "serve"])
+        self.recipe_book.add_recipe(recipe1)
     
+        # Try to add the same recipe again
+        recipe2 = RegularRecipe("Spaghetti", ["pasta", "tomatoes"], ["boil", "drain", "serve"])
+        self.recipe_book.add_recipe(recipe2)
+    
+        # Verify that the recipe list contains only one "Spaghetti" recipe
+        self.assertEqual(len(self.recipe_book.recipes), 1)
+    
+    def test_multiple_recipes_in_file(self):
+        # Add multiple recipes to the recipe book
+        recipe1 = RegularRecipe("Spaghetti", ["pasta", "tomatoes"], ["boil", "drain", "serve"])
+        recipe2 = RegularRecipe("Salad", ["lettuce", "tomatoes", "cucumber"], ["mix", "serve"])
+    
+        self.recipe_book.add_recipe(recipe1)
+        self.recipe_book.add_recipe(recipe2)
+    
+        # Save to file
+        self.recipe_book.save_to_file(self.test_file)
+    
+        # Load from file into a new RecipeBook instance
+        new_recipe_book = RecipeBook()
+        new_recipe_book.load_from_file(self.test_file)
+    
+        # Verify both recipes are loaded correctly
+        self.assertEqual(len(new_recipe_book.recipes), 2)
+        self.assertEqual(new_recipe_book.recipes[0].name, "Spaghetti")
+        self.assertEqual(new_recipe_book.recipes[1].name, "Salad")
+        
     def test_save_to_file(self):
         # Test saving recipes to a file
         recipe = RegularRecipe("Spaghetti", ["pasta", "tomatoes"], ["boil", "drain", "serve"])
@@ -62,6 +143,16 @@ class TestRecipeBook(unittest.TestCase):
         # Check if the recipe is correctly loaded
         self.assertEqual(len(new_recipe_book.recipes), 1)
         self.assertEqual(new_recipe_book.recipes[0].name, "Spaghetti")
+
+    def test_load_from_empty_file(self):
+        # Create an empty file
+        self.test_file.touch()
+    
+        # Load from the empty file
+        self.recipe_book.load_from_file(self.test_file)
+    
+        # Verify that no recipes are loaded
+        self.assertEqual(len(self.recipe_book.recipes), 0)
     
     def test_invalid_recipe_line(self):
         # Test handling invalid recipe lines in the file
