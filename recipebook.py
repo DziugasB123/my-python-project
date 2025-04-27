@@ -59,7 +59,7 @@ class RecipeBook:
     def save_to_file(self, filepath):
         with open(filepath, "w") as file:
             for recipe in self.recipes:
-                steps_combined = "||".join(recipe.steps)
+                steps_combined = "//".join(recipe.steps)
                 file.write(f"{recipe.name}|{','.join(recipe.ingredients)}|{steps_combined}\n")
 
     def load_from_file(self, filepath):
@@ -68,11 +68,14 @@ class RecipeBook:
             return
         with open(filepath, "r") as file:
             for line in file:
+                line = line.strip()
+                if not line:
+                    continue
                 parts = line.strip().split('|')
                 if len(parts) == 3:
                     name, ingredients, steps_combined = parts
                     ingredients_list = ingredients.split(',')
-                    steps_list = steps_combined.split('||') if steps_combined else []
+                    steps_list = steps_combined.split('//') if steps_combined else []
                     recipe = RegularRecipe(name, ingredients_list, steps_list)
                     self.recipes.append(recipe)
                 else:
