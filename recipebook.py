@@ -71,7 +71,7 @@ class RecipeBook:
                 line = line.strip()
                 if not line:
                     continue
-                parts = line.strip().split('|')
+                parts = line.split('|')
                 if len(parts) == 3:
                     name, ingredients, steps_combined = parts
                     ingredients_list = ingredients.split(',')
