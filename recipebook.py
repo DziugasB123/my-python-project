@@ -59,10 +59,11 @@ class RecipeBook:
     def save_to_file(self, filepath):
         with open(filepath, "w") as file:
             for recipe in self.recipes:
-                steps_combined = "||".join(recipe.steps)  # Use '||' to separate steps
+                steps_combined = "||".join(recipe.steps)
                 file.write(f"{recipe.name}|{','.join(recipe.ingredients)}|{steps_combined}\n")
 
     def load_from_file(self, filepath):
+        self.recipes = []
         if not filepath.exists():
             return
         with open(filepath, "r") as file:
@@ -88,13 +89,11 @@ class Account:
         self.account_file = self.base_path / "account.txt"
         self.recipes_file = self.base_path / "recipes.txt"
 
-
     def create_account(self):
         os.makedirs(self.base_path, exist_ok=True)
         with open(self.account_file, "w") as f:
             f.write(f"{self.username}\n{self.password}\n")
         print(f"Account for {self.username} created successfully!")
-
 
     def login(self):
         if not self.account_file.exists():
@@ -127,30 +126,19 @@ class RecipeApp:
         self.recipe_book = None
 
     def create_account(self, username, password):
+        account_folder = Path.home() / "Documents" / "RecipeApp" / username
+        if account_folder.exists():
+            print("Account already exists. Please choose a different username.")
+            return
         self.user_account = Account(username, password)
         self.user_account.create_account()
         self.recipe_book = self.user_account.recipe_book
 
     def login(self, username, password):
-        account_folder = Path.home() / "Documents" / "RecipeApp" / username
-        account_file = account_folder / "account.txt"
-        recipes_file = account_folder / "recipes.txt"
-
-        if not account_file.exists():
-            print("Account not found!")
-            return
-
-        with open(account_file, "r") as f:
-            stored_username = f.readline().strip()
-            stored_password = f.readline().strip()
-
-        if stored_username == username and stored_password == password:
-            print(f"Logged in as {username}")
-            self.user_account = Account(username, password)
-            self.recipe_book = self.user_account.recipe_book
-            self.recipe_book.load_from_file(recipes_file)
-        else:
-            print("Incorrect username or password.")
+        self.user_account = Account(username, password)
+        self.recipe_book = self.user_account.login()
+        if self.recipe_book is None:
+            self.user_account = None
 
     @action_logger
     def add_recipe(self, name, ingredients, steps):
@@ -183,7 +171,8 @@ if __name__ == "__main__":
     base_folder = Path.home() / "Documents" / "RecipeApp"
     os.makedirs(base_folder, exist_ok=True)
 
-    existing_accounts = [folder.name for folder in base_folder.iterdir() if folder.is_dir()]
+    existing_accounts = [folder.name for folder in base_folder.iterdir()
+                         if folder.is_dir()]
 
     # Login menu
     while True:
@@ -194,6 +183,8 @@ if __name__ == "__main__":
         choice = input("Enter your choice (1-3): ")
 
         if choice == "1":
+            existing_accounts = [folder.name for folder in base_folder.iterdir()
+                                 if folder.is_dir()]
             if not existing_accounts:
                 print("No accounts exist yet. Please create an account first.\n")
                 continue
@@ -201,7 +192,7 @@ if __name__ == "__main__":
             login_attempts = 0
             while login_attempts < 3:
                 login_username = input("Login - Enter username: ")
-                login_password = getpass.getpass("Login - Enter password: ")  # hidden password input
+                login_password = getpass.getpass("Login - Enter password: ")
                 app.login(login_username, login_password)
                 if app.recipe_book:
                     break
@@ -217,9 +208,14 @@ if __name__ == "__main__":
 
         elif choice == "2":
             username = input("Create account - Enter username: ")
-            password = getpass.getpass("Create account - Enter password: ")  # hidden password input
+            password = getpass.getpass("Create account - Enter password: ")
+            account_folder = base_folder / username
+            if account_folder.exists():
+                print("Account already exists. Please choose a different username.\n")
+                continue  # Don't proceed if folder exists
             app.create_account(username, password)
-            existing_accounts.append(username)  # Update account list after creation
+            existing_accounts = [folder.name for folder in base_folder.iterdir()
+                                 if folder.is_dir()]
 
         elif choice == "3":
             print("Goodbye!")
