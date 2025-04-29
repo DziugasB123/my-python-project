@@ -150,11 +150,11 @@
 4. Results and Summary
 
     Results:
-        1. User account creation and login;
-        2. Recipe management;
-        3. Persistent storage;
-        4. Action logging;
-        5. There were a few times, when the program wouldn't work because of tiny mistakes that were hard to catch.
+        1. User account creation and login
+        2. Recipe management
+        3. Persistent storage
+
+        There were a few times, when the program wouldn't work because of tiny mistakes that were hard to catch.
     
     Conclusion:
         This program successfully manages recipe creation, deletion or editing, user accounts. It records data in .txt files to preserve information. This was the largest programming project I have ever done, which was interesting to work on, but I do not believe I will be in any way improving or adding to this program, nor in any way sharing it with other people - it was solely a project for the course work assignment.
