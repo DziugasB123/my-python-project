@@ -88,28 +88,28 @@ class RecipeBook:
 # Account class (for account management)
 class Account:
     def __init__(self, username, password):
-        self.username = username
-        self.password = password
+        self._username = username
+        self._password = password
         self.recipe_book = RecipeBook()
-        self.base_path = Path.home() / "Documents" / "RecipeApp" / self.username
+        self.base_path = Path.home() / "Documents" / "RecipeApp" / self._username
         self.account_file = self.base_path / "account.txt"
         self.recipes_file = self.base_path / "recipes.txt"
 
     def create_account(self):
         os.makedirs(self.base_path, exist_ok=True)
         with open(self.account_file, "w") as f:
-            f.write(f"{self.username}\n{self.password}\n")
-        print(f"Account for {self.username} created successfully!")
+            f.write(f"{self._username}\n{self._password}\n")
+        print(f"Account for {self._username} created successfully!")
 
     def login(self):
         if not self.account_file.exists():
-            print(f"No account found for {self.username}")
+            print(f"No account found for {self._username}")
             return None
         with open(self.account_file, "r") as f:
             stored_username = f.readline().strip()
             stored_password = f.readline().strip()
-            if stored_username == self.username and stored_password == self.password:
-                print(f"Logged in as {self.username}")
+            if stored_username == self._username and stored_password == self._password:
+                print(f"Logged in as {self._username}")
                 self.recipe_book.load_from_file(self.recipes_file)
                 return self.recipe_book
             else:
